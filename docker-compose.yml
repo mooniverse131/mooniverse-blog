@@ -1,0 +1,60 @@
+version: '3'
+services:
+  client:
+    image: mooniverse0131/mooniverse-blog-client:latest
+    ports:
+      - "80:3000"
+    restart: always
+    environment:
+      - API_URL=http://server:8080  # 클라이언트가 API 서버에 접근할 때 서버의 컨테이너 이름을 사용하여 연결
+    networks:
+      - mooniverse-blog-network
+
+  admin:
+    image: mooniverse0131/mooniverse-blog-admin:latest
+    ports:
+      - "4000:4000"
+    restart: always
+    environment:
+      - API_URL=http://server:8080  # 관리자 대시보드도 API 서버에 접근
+    networks:
+      - mooniverse-blog-network
+
+  server:
+    image: mooniverse0131/mooniverse-blog-server:latest
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod  # 프로덕션 환경 설정
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/moonvierse_blog_db  # MySQL 컨테이너와 연결
+      - SPRING_DATASOURCE_USERNAME=user_name  # MySQL 사용자 이름
+      - SPRING_DATASOURCE_PASSWORD=user_password  # MySQL 비밀번호
+    networks:
+      - mooniverse-blog-network
+    depends_on:
+      - mysql  # MySQL이 먼저 시작되도록 설정
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Ansrl97013!  # MySQL 루트 비밀번호
+      MYSQL_DATABASE: mooniverse_blog_db             # 기본 데이터베이스 이름
+      MYSQL_USER: smk               # MySQL 사용자 이름
+      MYSQL_PASSWORD: Ansrl97013!       # MySQL 비밀번호
+    volumes:
+      - mysql_data:/var/lib/mysql         # MySQL 데이터를 EC2의 로컬 디스크에 저장
+    ports:
+      - "3306:3306"                       # MySQL 포트 3306을 외부에 노출
+    restart: always
+    networks:
+      - mooniverse-blog-network
+
+volumes:
+  mysql_data:                            # Docker Volume 설정
+    driver: local                        # EC2 로컬 디스크에 저장
+
+networks:
+  mooniverse-blog-network:                          # 각 서비스 간 네트워크 설정
+    driver: bridge
