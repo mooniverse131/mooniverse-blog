@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 // 컴포넌트 import (이 컴포넌트들은 `views` 폴더 안에 있어야 해)
 import HomeView from '../views/HomeView.vue'
-import AboutView from '../views/AboutView.vue'
+import SettingView from '../views/SettingView.vue'
 
 const routes = [
   {
